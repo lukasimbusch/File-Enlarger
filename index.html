@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Enlarger</title>
+<style>
+    body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+    input, button { margin: 10px; padding: 10px; font-size: 1rem; }
+</style>
+</head>
+<body>
+    <h2>File Enlarger (Client-Side)</h2>
+    <p>
+        <input type="file" id="fileInput" required>
+    </p>
+    <p>
+        Increase by (bytes): 
+        <input type="number" id="sizeInput" min="1" value="1000000">
+    </p>
+    <p>
+        <button id="enlargeButton">Enlarge File</button>
+    </p>
+
+    <script>
+        document.getElementById("enlargeButton").addEventListener("click", async () => {
+            const fileInput = document.getElementById("fileInput");
+            const sizeInput = document.getElementById("sizeInput");
+            const file = fileInput.files[0];
+            const extraSize = parseInt(sizeInput.value, 10);
+
+            if (!file || extraSize <= 0) {
+                alert("Please select a file and enter a valid size.");
+                return;
+            }
+
+            // Read the original file
+            const arrayBuffer = await file.arrayBuffer();
+            const originalData = new Uint8Array(arrayBuffer);
+
+            // Create extra random bytes
+            const extraData = new Uint8Array(extraSize);
+            crypto.getRandomValues(extraData); // cryptographically strong random bytes
+
+            // Combine old and new data
+            const newData = new Uint8Array(originalData.length + extraData.length);
+            newData.set(originalData, 0);
+            newData.set(extraData, originalData.length);
+
+            // Create a downloadable file
+            const blob = new Blob([newData], { type: file.type || "application/octet-stream" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "enlarged_" + file.name;
+            a.click();
+
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
