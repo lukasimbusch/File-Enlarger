@@ -10,13 +10,13 @@
 </style>
 </head>
 <body>
-    <h2>File Enlarger (Client-Side)</h2>
+    <h2>File Enlarger (Increase Size in Gigabytes)</h2>
     <p>
         <input type="file" id="fileInput" required>
     </p>
     <p>
-        Increase by (bytes): 
-        <input type="number" id="sizeInput" min="1" value="1000000">
+        Increase by (GB): 
+        <input type="number" id="sizeInput" min="1" value="1">
     </p>
     <p>
         <button id="enlargeButton">Enlarge File</button>
@@ -27,19 +27,22 @@
             const fileInput = document.getElementById("fileInput");
             const sizeInput = document.getElementById("sizeInput");
             const file = fileInput.files[0];
-            const extraSize = parseInt(sizeInput.value, 10);
+            const extraGB = parseInt(sizeInput.value, 10);
 
-            if (!file || extraSize <= 0) {
-                alert("Please select a file and enter a valid size.");
+            if (!file || extraGB <= 0) {
+                alert("Please select a file and enter a valid size in GB.");
                 return;
             }
+
+            // Convert GB to bytes (1 GB = 1,073,741,824 bytes)
+            const extraSizeInBytes = extraGB * 1073741824;
 
             // Read the original file
             const arrayBuffer = await file.arrayBuffer();
             const originalData = new Uint8Array(arrayBuffer);
 
             // Create extra random bytes
-            const extraData = new Uint8Array(extraSize);
+            const extraData = new Uint8Array(extraSizeInBytes);
             crypto.getRandomValues(extraData); // cryptographically strong random bytes
 
             // Combine old and new data
