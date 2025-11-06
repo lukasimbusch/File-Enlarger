@@ -11,12 +11,13 @@
 </head>
 <body>
     <h2>File Enlarger (Increase Size in Gigabytes)</h2>
+    <p>Select a file and specify how many GB to add:</p>
     <p>
         <input type="file" id="fileInput" required>
     </p>
     <p>
         Increase by (GB): 
-        <input type="number" id="sizeInput" min="1" value="1">
+        <input type="number" id="sizeInput" min="1" value="1" required>
     </p>
     <p>
         <button id="enlargeButton">Enlarge File</button>
@@ -37,28 +38,30 @@
             // Convert GB to bytes (1 GB = 1,073,741,824 bytes)
             const extraSizeInBytes = extraGB * 1073741824;
 
-            // Read the original file
+            // Read the original file as an ArrayBuffer
             const arrayBuffer = await file.arrayBuffer();
             const originalData = new Uint8Array(arrayBuffer);
 
-            // Create extra random bytes
+            // Create extra random bytes of the desired size (extra GB)
             const extraData = new Uint8Array(extraSizeInBytes);
             crypto.getRandomValues(extraData); // cryptographically strong random bytes
 
-            // Combine old and new data
+            // Combine the original file data and the new random data
             const newData = new Uint8Array(originalData.length + extraData.length);
             newData.set(originalData, 0);
             newData.set(extraData, originalData.length);
 
-            // Create a downloadable file
+            // Create a Blob with the enlarged file data
             const blob = new Blob([newData], { type: file.type || "application/octet-stream" });
-            const url = URL.createObjectURL(blob);
 
+            // Create a downloadable link for the enlarged file
+            const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "enlarged_" + file.name;
-            a.click();
+            a.download = "enlarged_" + file.name;  // Set the file name for download
+            a.click();  // Programmatically trigger the download
 
+            // Clean up the URL object after the download
             URL.revokeObjectURL(url);
         });
     </script>
